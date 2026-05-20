@@ -1,18 +1,18 @@
 #include "pixel.h"
 #include <fstream>
 #include <iostream>
+#include <limits>
+#include <stdint.h>
+#include <vector>
 
 struct Image {
   std::string magic;
-  int width, height, maxval;
+  int width, height, maxval, kernel_w, kernel_h;
   std::vector<Pixel> pixels;
 };
 
-void writeColor(std::ostream &out, Pixel &p) {
-  out << p.r << ' ' << p.g << ' ' << p.b << '\n';
-}
-
-// get height and width
+// PARSE .PPM IMAGES THAT ARE IN P6 FORMAT
+//
 int ParseImage(Image &img, const std::string &filePath) {
 
   std::ifstream image(filePath);
@@ -32,6 +32,7 @@ int ParseImage(Image &img, const std::string &filePath) {
     }
   };
 
+  // GET HEIGHT AND WIDTH
   image >> img.magic;
   image.ignore(std::numeric_limits<std::streamsize>::max(),
                '\n'); // consume rest of line including \r
@@ -44,6 +45,7 @@ int ParseImage(Image &img, const std::string &filePath) {
   skipComments(image);
   image >> img.maxval;
   std::cerr << "maxval: " << img.maxval << "\n";
+  skipComments(image);
 
   img.pixels.resize(img.width * img.height);
 
@@ -59,22 +61,20 @@ int ParseImage(Image &img, const std::string &filePath) {
   return 0;
 }
 
-int CalculateLuminosity(Image &img) {
-  double nR = 0.0;
-  double nG = 0.0;
-  double nB = 0.0;
-  double maxval = static_cast<double>(img.maxval);
-  for (auto &p : img.pixels) {
-    nR = p.r / maxval;
-    nG = p.g / maxval;
-    nB = p.b / maxval;
-    p.l = 0.2126 * nR + 0.7152 * nG + 0.0722 * nB;
-    std::cout << p.l;
-  }
-  return 0;
+// WRITE COLOR OF PIXEL TO AN OUT FILE
+//
+void writeColor(std::ostream &out, Pixel &p) {
+  out << (int)p.r << ' ' << (int)p.g << ' ' << (int)p.b << '\n';
 }
 
+// CALCULATES CHANCE OF A PIXEL BEING TURNED ON OR OFF BY ITS KERNEL'S
+// LUMINOSITY
+
 int CalculateKernelLuminosityScore(Image &img, int k_width, int k_height) {
+  double k_luminosity;
+
+  for (auto &p : img.pixels) {
+  }
 
   return 0;
 }
@@ -82,11 +82,18 @@ int CalculateKernelLuminosityScore(Image &img, int k_width, int k_height) {
 int main() {
 
   Image img;
+
   // IMG PARSING
   ParseImage(img, "bliss.ppm");
 
-  // IMAGE PROCESSING
-  CalculateLuminosity(img);
+  // IMAGE PROCESSING LOOP
+  for (auto &p : img.pixels) {
+    // p.MuteGreenChannel();
+    p.CalculateLuminosity(img.maxval);
+    // p.ConvertBlackAndWhite();
+    p.ClampColorChannels(255, 255, 255);
+  }
+
   CalculateKernelLuminosityScore(img, 10, 10);
 
   // IMAGE OUT
