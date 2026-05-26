@@ -18,6 +18,7 @@ public:
   // CONVERTS IMAGE TO BLACK AND WHITE BY USING LUMINOSITY AS PIXEL VALUE
   //
   int ConvertBlackAndWhite() {
+    CalculateLuminosity(255);
     if (calculated_l == false) {
       std::cerr << "You need to calculate luminosity first\n";
       return 1;
@@ -28,20 +29,39 @@ public:
     return 0;
   }
 
-  void ClampColorChannels(int clampr, int clampg, int clampb) {
-    r = r > clampr ? clampr : r;
-    g = g > clampg ? clampg : g;
-    b = b > clampb ? clampb : b;
+  void ClampColorChannel(int colorId, int clamp) {
+    switch (colorId) {
+    case 0:
+      r = r > clamp ? clamp : r;
+      break;
+    case 1:
+      g = g > clamp ? clamp : g;
+      break;
+    case 2:
+      b = b > clamp ? clamp : b;
+      break;
+    }
   }
 
-  void MuteRedChannel() { r = 0; }
-  void MuteGreenChannel() { g = 0; }
-  void MuteBlueChannel() { b = 0; }
+  void MuteColorChannel(int colorId) {
+    switch (colorId) {
+
+    case 0:
+      r = 0;
+      break;
+    case 1:
+      g = 0;
+      break;
+    case 2:
+      b = 0;
+      break;
+    }
+  }
 
   // CALCULATE IMAGE LUMINOSITY
   //
 
-  void CalculateLuminosity(int imgMaxVal) {
+  void CalculateLuminosity(int imgMaxVal = 255) {
     double nR = 0.0;
     double nG = 0.0;
     double nB = 0.0;

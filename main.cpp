@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <vector>
 
+const uint8_t RED = 0;
+const uint8_t GREEN = 1;
+const uint8_t BLUE = 2;
+
 struct Image {
   std::string magic;
   int width, height, maxval, kernel_w, kernel_h;
@@ -73,9 +77,8 @@ void writeColor(std::ostream &out, Pixel &p) {
 int CalculateKernelLuminosityScore(Image &img, int k_width, int k_height) {
   double k_luminosity;
 
-  for (auto &p : img.pixels) {
+  for (int i = 0; i < k_width; i++) {
   }
-
   return 0;
 }
 
@@ -88,10 +91,9 @@ int main() {
 
   // IMAGE PROCESSING LOOP
   for (auto &p : img.pixels) {
-    // p.MuteGreenChannel();
-    p.CalculateLuminosity(img.maxval);
-    // p.ConvertBlackAndWhite();
-    p.ClampColorChannels(255, 255, 255);
+    p.ConvertBlackAndWhite();
+    p.ClampColorChannel(BLUE, 100);
+    p.ClampColorChannel(RED, 100);
   }
 
   CalculateKernelLuminosityScore(img, 10, 10);
